@@ -30,26 +30,43 @@ namespace FileExplorer
 
 			PluginManager pluginManager = new PluginManager();
 			var plugins = pluginManager.LoadPlugins();
-			Dictionary<FileTypes, List<Type>> fileTypes = new Dictionary<FileTypes, List<Type>>();
+			Dictionary<string, List<Type>> fileTypes = new Dictionary<string, List<Type>>();
 			foreach (var plugin in plugins)
 			{
 				var searcher = (IExtension)Activator.CreateInstance(plugin);
-                if (!fileTypes.ContainsKey(searcher.FileType))
+				if (!fileTypes.ContainsKey(searcher.FileType.ToString().ToUpper()))
 				{
-					fileTypes.Add(searcher.FileType, new List<Type> { plugin });
+					fileTypes.Add(searcher.FileType.ToString().ToUpper(), new List<Type> { plugin });
 				}
 				else
 				{
-					fileTypes[searcher.FileType].Add(plugin);
+					fileTypes[searcher.FileType.ToString().ToUpper()].Add(plugin);
 				}
 
 				//Search(searcher);
 			}
-			foreach (KeyValuePair<FileTypes, List<Type>> kvp in fileTypes)
+			Dictionary<int, string> searchOptions = new Dictionary<int, string>();
+			int optionCount = 1;
+			foreach (KeyValuePair<string, List<Type>> kvp in fileTypes)
 			{
-				Console.WriteLine(kvp.Key.ToString().ToUpper());
-                kvp.Value.ForEach(t => Console.WriteLine(t.Name));
+				searchOptions.Add(optionCount++, kvp.Key);
+			}
+			Console.Write("Select one of these file types: ");
+			foreach (var item in searchOptions)
+			{
+				Console.Write($"[{item.Key}]{item.Value} ");
 
+			}
+			Console.WriteLine(":");
+			try
+			{
+
+				var AvailableExtensions = fileTypes[searchOptions[int.Parse(Console.ReadLine())]];
+				AvailableExtensions.ForEach(x => Console.WriteLine(x.Name));
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Enter option correctly!!");
 			}
 		}
 	}
