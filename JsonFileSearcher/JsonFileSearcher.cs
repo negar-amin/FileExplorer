@@ -1,8 +1,9 @@
 ﻿using FileExplorer.ExtensionPlatform;
+using System.Security.Cryptography.X509Certificates;
 
 namespace JsonFileSearcher
 {
-	public class JsonFileSearcher: IExtension
+	public class JsonFileSearcher : IExtension
 	{
 		private FileTypes _fileType = FileTypes.json;
 
@@ -10,25 +11,59 @@ namespace JsonFileSearcher
 		{
 			get => _fileType;
 		}
+		public string searchType { get; } = "title";
 
 		public List<string> SearchFiles(string dir, string fileName, List<string> filePaths)
 		{
-			string[] files = Directory.GetFiles(dir, "*" + fileName + $"*.{FileType}");
-
-			foreach (string file in files)
+			List<string> results = new List<string>();
+			Thread searchThread = new Thread(() =>
 			{
-				filePaths.Add(file);
-			}
+				results = SearchForFiles(dir, fileName, filePaths);
+			});
 
-			string[] subDirs = Directory.GetDirectories(dir);
+			searchThread.Start();
 
-			foreach (string subDir in subDirs)
+			Console.Write("Searching ");
+			while (searchThread.IsAlive)
 			{
-
-				SearchFiles(subDir, fileName, filePaths);
+				Console.Write(".");
+				Thread.Sleep(1000);
 
 			}
-			return filePaths;
+			List<string> SearchForFiles(string dir, string fileName, List<string> filePaths)
+			{
+				try
+				{
+
+					string[] files = Directory.GetFiles(dir, "*" + fileName + $"*.{FileType}");
+					foreach (string file in files)
+					{
+						filePaths.Add(file);
+					}
+					string[] subDirs = Directory.GetDirectories(dir);
+
+					foreach (string subDir in subDirs)
+					{
+						Thread searchThread = new Thread(() =>
+						{
+							SearchForFiles(subDir, fileName, filePaths);
+						});
+
+						searchThread.Start();
+
+					}
+				}
+
+
+				catch (Exception ex)
+				{
+					Console.WriteLine($"\n{ex.Message}");
+				}
+
+
+				return filePaths;
+			}
+			return results;
 		}
 	}
 }

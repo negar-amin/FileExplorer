@@ -4,70 +4,58 @@ namespace FileExplorer
 {
 	internal class Program
 	{
-		public static void Search(IExtension searcher)
-		{
-			string choice = "";
-			Console.WriteLine("Pick the root path:");
-			string rootPath = Console.ReadLine();
-
-			Console.WriteLine("Query:");
-			string fileName = Console.ReadLine();
-			List<string> results = new List<string>();
-			try
-			{
-				searcher.SearchFiles(rootPath, fileName, results);
-
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.Message);
-			}
-			Console.WriteLine("\nFound {0} {1} files:", results.Count, searcher.FileType);
-			results.ForEach(Console.WriteLine);
-		}
 		static void Main(string[] args)
 		{
-
+			//First all Extensions will be loaded in PluginManager Class all Extensions that loaded with problem will be detected.
 			PluginManager pluginManager = new PluginManager();
 			var plugins = pluginManager.LoadPlugins();
-			Dictionary<string, List<Type>> fileTypes = new Dictionary<string, List<Type>>();
-			foreach (var plugin in plugins)
+
+			bool exit = false;
+			while (!exit)
 			{
-				var searcher = (IExtension)Activator.CreateInstance(plugin);
-				if (!fileTypes.ContainsKey(searcher.FileType.ToString().ToUpper()))
+				Console.WriteLine("=== BOOTCAMP SEARCH :: An extendible command-line search tool **Credit To: Negar Amin Gheydari** ===\n");
+				Console.WriteLine("1. Search for files\n2. View search history\n3.Manage Extensions");
+				if (ShowProblematicExtension.Extensions > 0)
+					Console.WriteLine($"\nNOTE: There was a problem with loading {ShowProblematicExtension.Extensions} extensions. View them in Manage Extensions section.");
+				Console.WriteLine("\nPlease input an option: ");
+				try
 				{
-					fileTypes.Add(searcher.FileType.ToString().ToUpper(), new List<Type> { plugin });
+
+					int choice = int.Parse(Console.ReadLine());
+					switch (choice)
+					{
+						//Search for files
+						case 1:
+							SearchForFileOption searchForFileOption = new SearchForFileOption(plugins);
+							break;
+						//View search history
+						case 2:
+							ShowLogs showLogs = new ShowLogs();
+							break;
+						//Manage Extensions
+						case 3:
+							ShowProblematicExtension problematicExtensions = new ShowProblematicExtension();
+							break;
+						//Exit
+						case 4:
+							exit = true;
+							break;
+						//When number that user entered is not in list of options
+						default:
+							Console.WriteLine("Enter Option correctly!");
+							break;
+					}
 				}
-				else
+				catch (Exception ex)
 				{
-					fileTypes[searcher.FileType.ToString().ToUpper()].Add(plugin);
+					Console.WriteLine(ex.Message);
 				}
 
-				//Search(searcher);
-			}
-			Dictionary<int, string> searchOptions = new Dictionary<int, string>();
-			int optionCount = 1;
-			foreach (KeyValuePair<string, List<Type>> kvp in fileTypes)
-			{
-				searchOptions.Add(optionCount++, kvp.Key);
-			}
-			Console.Write("Select one of these file types: ");
-			foreach (var item in searchOptions)
-			{
-				Console.Write($"[{item.Key}]{item.Value} ");
 
 			}
-			Console.WriteLine(":");
-			try
-			{
 
-				var AvailableExtensions = fileTypes[searchOptions[int.Parse(Console.ReadLine())]];
-				AvailableExtensions.ForEach(x => Console.WriteLine(x.Name));
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Enter option correctly!!");
-			}
+
+
 		}
 	}
 }

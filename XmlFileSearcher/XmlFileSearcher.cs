@@ -1,10 +1,10 @@
 ﻿using FileExplorer.ExtensionPlatform;
 
-namespace TextFileSearcher
+namespace XmlFileSearcher
 {
-	public class TextFileSearcher : IExtension
+	public class XmlFileSearcher : IExtension
 	{
-		private FileTypes _fileType = FileTypes.txt;
+		private FileTypes _fileType = FileTypes.xml;
 
 		public FileTypes FileType
 		{
