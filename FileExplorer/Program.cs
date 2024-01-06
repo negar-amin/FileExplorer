@@ -14,7 +14,7 @@ namespace FileExplorer
 			while (!exit)
 			{
 				Console.WriteLine("=== BOOTCAMP SEARCH :: An extendible command-line search tool **Credit To: Negar Amin Gheydari** ===\n");
-				Console.WriteLine("1. Search for files\n2. View search history\n3.Manage Extensions");
+				Console.WriteLine("1. Search for files\n2. View search history\n3.Manage Extensions\n4. Exit");
 				if (ShowProblematicExtension.Extensions > 0)
 					Console.WriteLine($"\nNOTE: There was a problem with loading {ShowProblematicExtension.Extensions} extensions. View them in Manage Extensions section.");
 				Console.WriteLine("\nPlease input an option: ");
